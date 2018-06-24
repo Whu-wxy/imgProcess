@@ -10,7 +10,6 @@ ImgProcess::ImgProcess(QWidget *parent)
     : QMainWindow(parent)
 {
     imgLabel=new QLabel(this);
-   // imgLabel->move(0,0);
 
     img=new QImage;
     oldImage = new QImage;
@@ -298,7 +297,7 @@ void ImgProcess::bining()
     }
 }
 
-int ImgProcess::Otsu(QImage* img)
+int ImgProcess::Otsu(QImage* img)   //选取二值化阈值算法
 {
     if (NULL == img)
         {
@@ -372,7 +371,6 @@ void ImgProcess::savefile()
      {
     fileName=QFileDialog::getSaveFileName(this,tr("保存图片"), "F:/", tr("(*.bmp);;(*.jpg)"));
     imgLabel->pixmap()->save(fileName);
-    //img->save(fileName,0);
      }
 
 }
