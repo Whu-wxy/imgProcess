@@ -13,7 +13,7 @@ ImgProcess::ImgProcess(QWidget *parent)
 
     img=new QImage;
     oldImage = new QImage;
-    fileName="D:/QtWork/ImgProcess/a.jpg";
+    fileName=":/images/a.jpg";
     img->load(fileName);
     *oldImage = *img;
 
@@ -34,78 +34,78 @@ ImgProcess::~ImgProcess()
 
 }
 void ImgProcess::createAction()
- {
-        open=new QAction(QIcon("D:/QtWork/ImgProcess/open.png"),"打开图片");
-        open->setStatusTip("打开一个图片");
-        open->setShortcut(tr("Ctrl+O"));
-        connect(open,SIGNAL(triggered(bool)),this,SLOT(openfile()));
+{
+    open=new QAction(QIcon(":/images/open.png"),"打开图片");
+    open->setStatusTip("打开一个图片");
+    open->setShortcut(tr("Ctrl+O"));
+    connect(open,SIGNAL(triggered(bool)),this,SLOT(openfile()));
 
-        close=new QAction("关闭文件");
-        connect(close,SIGNAL(triggered(bool)),this,SLOT(closefile()));
+    close=new QAction("关闭文件");
+    connect(close,SIGNAL(triggered(bool)),this,SLOT(closefile()));
 
-        save=new QAction("保存");
-        connect(save,SIGNAL(triggered(bool)),this,SLOT(savefile()));
-        reshow=new QAction(QIcon("D:/QtWork/ImgProcess/new.png"),tr("重新显示"));
-        connect(reshow,SIGNAL(triggered(bool)),this,SLOT(Rshow()));
+    save=new QAction("保存");
+    connect(save,SIGNAL(triggered(bool)),this,SLOT(savefile()));
+    reshow=new QAction(QIcon(":/images/new.png"),tr("重新显示"));
+    connect(reshow,SIGNAL(triggered(bool)),this,SLOT(Rshow()));
 
-        oppo=new QAction("反相");
-        oppo->setStatusTip("图像反相");
-        connect(oppo,SIGNAL(triggered(bool)),this,SLOT(oppoimg()));
+    oppo=new QAction("反相");
+    oppo->setStatusTip("图像反相");
+    connect(oppo,SIGNAL(triggered(bool)),this,SLOT(oppoimg()));
 
-        lastImg = new QAction("返回上一步");
-        connect(lastImg,SIGNAL(triggered(bool)),this,SLOT(toLast()));
+    lastImg = new QAction("返回上一步");
+    connect(lastImg,SIGNAL(triggered(bool)),this,SLOT(toLast()));
 
-        roll=new QAction(QIcon("D:/QtWork/ImgProcess/rotate90.png"),"顺时针旋转");
-        roll->setShortcut(tr("Ctrl+Left"));
-        connect(roll,SIGNAL(triggered(bool)),this,SLOT(rollimg()));
+    roll=new QAction(QIcon(":/images/rotate90.png"),"顺时针旋转");
+    roll->setShortcut(tr("Ctrl+Left"));
+    connect(roll,SIGNAL(triggered(bool)),this,SLOT(rollimg()));
 
-        backRoll=new QAction(QIcon("D:/QtWork/ImgProcess/rotate180.png"),"逆时针旋转");
-        backRoll->setShortcut(tr("Ctrl+Right"));
-        connect(backRoll,SIGNAL(triggered(bool)),this,SLOT(backroll()));
+    backRoll=new QAction(QIcon(":/images/rotate180.png"),"逆时针旋转");
+    backRoll->setShortcut(tr("Ctrl+Right"));
+    connect(backRoll,SIGNAL(triggered(bool)),this,SLOT(backroll()));
 
-        edge=new QAction("查找边缘");
-        connect(edge,SIGNAL(triggered(bool)),this,SLOT(findedge()));
+    edge=new QAction("查找边缘");
+    connect(edge,SIGNAL(triggered(bool)),this,SLOT(findedge()));
 
-        gray=new QAction("灰度化");
-        connect(gray,SIGNAL(triggered(bool)),this,SLOT(graying()));
-        binImg=new QAction("二值化");
-        connect(binImg,SIGNAL(triggered(bool)),this,SLOT(bining()));
+    gray=new QAction("灰度化");
+    connect(gray,SIGNAL(triggered(bool)),this,SLOT(graying()));
+    binImg=new QAction("二值化");
+    connect(binImg,SIGNAL(triggered(bool)),this,SLOT(bining()));
 }
 
 void ImgProcess::createMenu()
- {
-        file=menuBar()->addMenu("文件");
-        file->addAction(open);
-        file->addAction(close);
-        file->addAction(save);
-        file->addAction(reshow);
+{
+    file=menuBar()->addMenu("文件");
+    file->addAction(open);
+    file->addAction(close);
+    file->addAction(save);
+    file->addAction(reshow);
 
-        edit=menuBar()->addMenu("编辑");
-        edit->addAction(lastImg);
-        edit->addAction(roll);
-        edit->addAction(backRoll);
+    edit=menuBar()->addMenu("编辑");
+    edit->addAction(lastImg);
+    edit->addAction(roll);
+    edit->addAction(backRoll);
 
-        imgProcess=menuBar()->addMenu("灰度图处理");
-        imgProcess->addAction(oppo);
-        imgProcess->addAction(edge);
+    imgProcess=menuBar()->addMenu("灰度图处理");
+    imgProcess->addAction(oppo);
+    imgProcess->addAction(edge);
 
-        colorimg=menuBar()->addMenu("彩图处理");
-        colorimg->addAction(gray);
-        colorimg->addAction(roll);
-        colorimg->addAction(backRoll);
-        colorimg->addAction(binImg);
+    colorimg=menuBar()->addMenu("彩图处理");
+    colorimg->addAction(gray);
+    //        colorimg->addAction(roll);
+    //        colorimg->addAction(backRoll);
+    colorimg->addAction(binImg);
 }
 
 void ImgProcess::openfile()
 {
-    fileName=QFileDialog::getOpenFileName(this,tr("Open Image"), "F:/", tr("Image Files (*.bmp *.jpg)"));
-   if(!fileName.isEmpty())
-   {
-    img->load(fileName);
-    scaleImg();
-    *oldImage = *img;
-    imgLabel->setPixmap(QPixmap::fromImage(*img));
-   }
+    fileName=QFileDialog::getOpenFileName(this,tr("Open Image"), "F:/", tr("Image Files (*.bmp *.jpg *.tiff)"));
+    if(!fileName.isEmpty())
+    {
+        img->load(fileName);
+        scaleImg();
+        *oldImage = *img;
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
+    }
 }
 
 void ImgProcess::scaleImg()
@@ -121,7 +121,7 @@ void ImgProcess::scaleImg()
             m_width=img->width();
             m_height=img->height();
         }
-     else
+        else
         {
             *img = img->scaled(m_width*((float)this->height()/m_height), this->height());
             m_width=img->width();
@@ -135,20 +135,20 @@ void ImgProcess::oppoimg()
     *oldImage = *img;
     if(!fileName.isEmpty())
     {
-    for (int i=0;i<m_width;i++)
-    {
-       for (int j=0;j<m_height;j++)
-       {
-           int red=qRed(img->pixel(i,j));
-           int green=qGreen(img->pixel(i,j));
-           int blue=qBlue(img->pixel(i,j));
+        for (int i=0;i<m_width;i++)
+        {
+            for (int j=0;j<m_height;j++)
+            {
+                int red=qRed(img->pixel(i,j));
+                int green=qGreen(img->pixel(i,j));
+                int blue=qBlue(img->pixel(i,j));
 
-           QColor color( 255-red,255-green,255-blue);
-           img->setPixel(i,j,color.rgb());
-       }
+                QColor color( 255-red,255-green,255-blue);
+                img->setPixel(i,j,color.rgb());
+            }
+        }
+
     }
-
-}
     else
         QMessageBox::warning(this,"注意","未打开灰度图片");
 
@@ -188,15 +188,15 @@ void ImgProcess::closefile()
     msgBox.setStandardButtons(QMessageBox::Ok | QMessageBox::Cancel);
     msgBox.setDefaultButton(QMessageBox::Cancel);
     int ret=msgBox.exec();
-     switch (ret)
-     {
-     case QMessageBox::Cancel:
-         msgBox.close();break;
-     case QMessageBox::Ok:
-         imgLabel->clear();
-         delete img;
-         break;
-     }
+    switch (ret)
+    {
+    case QMessageBox::Cancel:
+        msgBox.close();break;
+    case QMessageBox::Ok:
+        imgLabel->clear();
+        delete img;
+        break;
+    }
 }
 
 void ImgProcess::findedge()
@@ -204,15 +204,15 @@ void ImgProcess::findedge()
     *oldImage = *img;
     if(!fileName.isEmpty()&&img->allGray())
     {
-      int r=0;
-      EdgeNum *num=new EdgeNum();
-      r=num->exec();
+        int r=0;
+        EdgeNum *num=new EdgeNum();
+        r=num->exec();
 
-    if(r==1)
-      {
-      int number=num->getNum();
-      showedge(number);
-      }
+        if(r==1)
+        {
+            int number=num->getNum();
+            showedge(number);
+        }
     }
     else
         QMessageBox::warning(this,"注意","未打开灰度图片");
@@ -222,19 +222,19 @@ void ImgProcess::showedge(int number)
     *oldImage = *img;
     for (int i=0;i<m_width-1;i++)
     {
-       for (int j=0;j<m_height;j++)
-       {
-           int grayL = qGray(img->pixel(i,j));
-           int grayR = qGray(img->pixel(i,j+1));
-           int gray;
-           if(grayL-grayR > number)
-             gray = 255;
-       else
-             gray = 0;
+        for (int j=0;j<m_height;j++)
+        {
+            int grayL = qGray(img->pixel(i,j));
+            int grayR = qGray(img->pixel(i,j+1));
+            int gray;
+            if(grayL-grayR > number)
+                gray = 255;
+            else
+                gray = 0;
 
-           QColor color(gray, gray, gray);
-           img->setPixel(i,j,color.rgb());
-       }
+            QColor color(gray, gray, gray);
+            img->setPixel(i,j,color.rgb());
+        }
     }
 
     imgLabel->setPixmap(QPixmap::fromImage(*img));
@@ -245,9 +245,9 @@ void ImgProcess::Rshow()
 {
     if(!fileName.isEmpty())
     {
-    img->load(fileName);
-    scaleImg();
-    imgLabel->setPixmap(QPixmap::fromImage(*img));
+        img->load(fileName);
+        scaleImg();
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
     }
     else
         QMessageBox::warning(this,"注意","未打开图片");
@@ -269,7 +269,7 @@ void ImgProcess::graying()
                 img->setPixel(i,j,color.rgb());
             }
         }
-    imgLabel->setPixmap(QPixmap::fromImage(*img));
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
     }
 }
 
@@ -293,53 +293,53 @@ void ImgProcess::bining()
                 img->setPixel(i,j,color.rgb());
             }
         }
-    imgLabel->setPixmap(QPixmap::fromImage(*img));
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
     }
 }
 
 int ImgProcess::Otsu(QImage* img)   //选取二值化阈值算法
 {
     if (NULL == img)
-        {
-            return -1;
-        }
-        std::vector<int> histogram = Histogram(img);
-        int total = 0;
-        for (int i = 0; i != histogram.size(); ++i)
-        {
-            total += histogram[i];
-        }
+    {
+        return -1;
+    }
+    std::vector<int> histogram = Histogram(img);
+    int total = 0;
+    for (int i = 0; i != histogram.size(); ++i)
+    {
+        total += histogram[i];
+    }
 
-        double sum = 0.0;
-        for (unsigned int i = 1; i < histogram.size(); ++i)
-            sum += i * histogram[i];
-        double sumB = 0.0;
-        double wB = 0.0;
-        double wF = 0.0;
-        double mB = 0.0;
-        double mF = 0.0;
-        double max = 0.0;
-        double between = 0.0;
-        double threshold = 0.0;
-        for (int i = 0; i != 256; ++i)
+    double sum = 0.0;
+    for (unsigned int i = 1; i < histogram.size(); ++i)
+        sum += i * histogram[i];
+    double sumB = 0.0;
+    double wB = 0.0;
+    double wF = 0.0;
+    double mB = 0.0;
+    double mF = 0.0;
+    double max = 0.0;
+    double between = 0.0;
+    double threshold = 0.0;
+    for (int i = 0; i != 256; ++i)
+    {
+        wB += histogram[i];
+        if (wB == 0)
+            continue;
+        wF = total - wB;
+        if (wF == 0)
+            break;
+        sumB += i * histogram[i];
+        mB = sumB / wB;
+        mF = (sum - sumB) / wF;
+        between = wB * wF * (mB - mF) * (mB - mF);
+        if ( between > max )
         {
-            wB += histogram[i];
-            if (wB == 0)
-                continue;
-            wF = total - wB;
-            if (wF == 0)
-                break;
-            sumB += i * histogram[i];
-            mB = sumB / wB;
-            mF = (sum - sumB) / wF;
-            between = wB * wF * (mB - mF) * (mB - mF);
-            if ( between > max )
-            {
-                threshold = i;
-                max = between;
-            }
+            threshold = i;
+            max = between;
         }
-        return threshold;
+    }
+    return threshold;
 }
 
 std::vector<int> ImgProcess::Histogram( QImage* img)
@@ -367,16 +367,16 @@ void ImgProcess::savefile()
     box.setStandardButtons(QMessageBox::Save|QMessageBox::Cancel);
     box.setDefaultButton(QMessageBox::Save);
     int ret = box.exec();
-     if(ret==QMessageBox::Save)
-     {
-    fileName=QFileDialog::getSaveFileName(this,tr("保存图片"), "F:/", tr("(*.bmp);;(*.jpg)"));
-    imgLabel->pixmap()->save(fileName);
-     }
+    if(ret==QMessageBox::Save)
+    {
+        fileName=QFileDialog::getSaveFileName(this,tr("保存图片"), "F:/", tr("(*.bmp);;(*.jpg)"));
+        imgLabel->pixmap()->save(fileName);
+    }
 
 }
 
 void ImgProcess::toLast()
 {
-    *oldImage = *img;
+    *img = *oldImage;
     imgLabel->setPixmap(QPixmap::fromImage(*img));
 }

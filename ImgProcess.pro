@@ -29,3 +29,6 @@ SOURCES += main.cpp\
 
 HEADERS  += imgprocess.h \
     edgenum.h
+
+RESOURCES += \
+    src.qrc
