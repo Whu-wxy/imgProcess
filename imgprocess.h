@@ -8,6 +8,7 @@
 #include <QFile>
 #include <QLabel>
 #include <edgenum.h>
+
 class ImgProcess : public QMainWindow
 {
     Q_OBJECT

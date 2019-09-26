@@ -6,6 +6,7 @@
 #include <QIcon>
 #include <QLabel>
 #include <QDebug>
+
 ImgProcess::ImgProcess(QWidget *parent)
     : QMainWindow(parent)
 {
