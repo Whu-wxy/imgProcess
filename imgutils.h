@@ -9,6 +9,7 @@
 #include "iostream"
 #include <math.h>
 
+using namespace std;
 using namespace cv;
 
 Mat convolution(Mat src, Mat kernel, bool bPadding = false,
