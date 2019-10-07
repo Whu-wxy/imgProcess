@@ -201,14 +201,14 @@ Mat screen0(Mat src)
             int l = j % kernel.cols;
             int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*144);
             if(pixelValue > kernel.at<uchar>(k,l))
-                img.at<char>(i, j) = 255;
-            else
                 img.at<char>(i, j) = 0;
+            else
+                img.at<char>(i, j) = 255;
 
         }
     }
 
 
     Mat roi = img(Rect(12*50, 12*50, 12, 12));
-    return img;
+    return roi;
 }
