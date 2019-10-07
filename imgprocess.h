@@ -9,6 +9,11 @@
 #include <QLabel>
 #include <edgenum.h>
 
+#include "imgutils.h"
+
+#include "opencv2/opencv.hpp"//添加Opencv相关头文件
+#include "opencv2/highgui/highgui.hpp"
+
 class ImgProcess : public QMainWindow
 {
     Q_OBJECT

@@ -92,8 +92,6 @@ void ImgProcess::createMenu()
 
     colorimg=menuBar()->addMenu("彩图处理");
     colorimg->addAction(gray);
-    //        colorimg->addAction(roll);
-    //        colorimg->addAction(backRoll);
     colorimg->addAction(binImg);
 }
 
