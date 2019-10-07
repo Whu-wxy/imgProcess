@@ -21,6 +21,6 @@ QImage MatToQImage(cv::Mat mtx);
 
 Mat screen0(Mat src);
 
-
+Mat screen45(Mat src);
 
 #endif // IMGUTILS_H

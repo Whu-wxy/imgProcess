@@ -1,7 +1,3 @@
-### Digital Screening
-### Author: Sin_Geek
-### Date: 2015-05-17
-
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
