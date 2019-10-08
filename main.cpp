@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
     QString srcPath = "F:\\Lena256.bmp";
     Mat src = imread(srcPath.toStdString());
 
-    src = screen45(src);
+    src = screen75(src);
 
     namedWindow("res", cv::WINDOW_NORMAL);
     imshow("res", src);

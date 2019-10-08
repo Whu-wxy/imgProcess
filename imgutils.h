@@ -23,4 +23,8 @@ Mat screen0(Mat src);
 
 Mat screen45(Mat src);
 
+Mat screen15(Mat src);
+
+Mat screen75(Mat src);
+
 #endif // IMGUTILS_H
