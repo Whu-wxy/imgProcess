@@ -16,18 +16,5 @@ int main(int argc, char *argv[])
     ImgProcess w;
     w.show();
 
-
-
-    QString srcPath = "F:\\Lena256.bmp";
-    Mat src = imread(srcPath.toStdString());
-
-    src = screen75(src);
-
-    namedWindow("res", cv::WINDOW_NORMAL);
-    imshow("res", src);
-
-
-    waitKey(0);
-
     return a.exec();
 }

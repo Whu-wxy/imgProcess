@@ -132,18 +132,27 @@ void ImgProcess::scaleImg()
 void ImgProcess::oppoimg()
 {
     *oldImage = *img;
+    QImage::Format f=img->format();
     if(!fileName.isEmpty())
     {
         for (int i=0;i<m_width;i++)
         {
             for (int j=0;j<m_height;j++)
             {
-                int red=qRed(img->pixel(i,j));
-                int green=qGreen(img->pixel(i,j));
-                int blue=qBlue(img->pixel(i,j));
+                if(f == QImage::Format_Indexed8)
+                {
+                    int index = img->pixelIndex(i, j);
+                    img->setPixel(i,j,255-index);
+                }
+                else
+                {
+                    int red=qRed(img->pixel(i,j));
+                    int green=qGreen(img->pixel(i,j));
+                    int blue=qBlue(img->pixel(i,j));
 
-                QColor color( 255-red,255-green,255-blue);
-                img->setPixel(i,j,color.rgb());
+                    QColor color( 255-red,255-green,255-blue);
+                    img->setPixel(i,j,color.rgb());
+                }
             }
         }
 
@@ -219,20 +228,35 @@ void ImgProcess::findedge()
 void ImgProcess::showedge(int number)
 {
     *oldImage = *img;
+    QImage::Format f=img->format();
     for (int i=0;i<m_width-1;i++)
     {
         for (int j=0;j<m_height;j++)
         {
-            int grayL = qGray(img->pixel(i,j));
-            int grayR = qGray(img->pixel(i,j+1));
-            int gray;
-            if(grayL-grayR > number)
-                gray = 255;
+            if(f == QImage::Format_Indexed8)
+            {
+                int indexL = img->pixelIndex(i, j);
+                int indexR = img->pixelIndex(i, j+1);
+                int index;
+                if(indexL-indexR > number)
+                    index = 255;
+                else
+                    index = 0;
+                img->setPixel(i,j,index);
+            }
             else
-                gray = 0;
+            {
+                int grayL = qGray(img->pixel(i,j));
+                int grayR = qGray(img->pixel(i,j+1));
+                int gray;
+                if(grayL-grayR > number)
+                    gray = 255;
+                else
+                    gray = 0;
 
-            QColor color(gray, gray, gray);
-            img->setPixel(i,j,color.rgb());
+                QColor color(gray, gray, gray);
+                img->setPixel(i,j,color.rgb());
+            }
         }
     }
 
@@ -256,6 +280,8 @@ void ImgProcess::graying()
 {
     *oldImage = *img;
     QImage::Format f=img->format();
+    if(f == QImage::Format_Indexed8)
+        return;
 
     if(f!=QImage::Format_Invalid)
     {
@@ -279,17 +305,29 @@ void ImgProcess::bining()
     int value = Otsu(img);
     if(f!=QImage::Format_Invalid)
     {
-        for(int i=0;i<m_width;i++)
+        for(int i=0; i<m_width; i++)
         {
-            for(int j=0;j<m_height;j++)
+            for(int j=0; j<m_height; j++)
             {
-                int gray=qGray(img->pixel(i,j));
-                if(gray>=value)
-                    gray=255;
-                if(gray<value)
-                    gray=0;
-                QColor color(gray, gray, gray);
-                img->setPixel(i,j,color.rgb());
+                if(f == QImage::Format_Indexed8)
+                {
+                    int index = img->pixelIndex(i, j);
+                    if(index>=value)
+                        index=255;
+                    else if(index<value)
+                        index=0;
+                    img->setPixel(i,j,index);
+                }
+                else
+                {
+                    int gray=qGray(img->pixel(i,j));
+                    if(gray>=value)
+                        gray=255;
+                    else if(gray<value)
+                        gray=0;
+                    QColor color(gray, gray, gray);
+                    img->setPixel(i,j,color.rgb());
+                }
             }
         }
         imgLabel->setPixmap(QPixmap::fromImage(*img));
@@ -320,7 +358,7 @@ int ImgProcess::Otsu(QImage* img)   //选取二值化阈值算法
     double max = 0.0;
     double between = 0.0;
     double threshold = 0.0;
-    for (int i = 0; i != 256; ++i)
+    for (int i = 0; i < histogram.size(); ++i)
     {
         wB += histogram[i];
         if (wB == 0)
@@ -345,9 +383,9 @@ std::vector<int> ImgProcess::Histogram( QImage* img)
 {
     unsigned char* graydata = img->bits();
     std::vector<int> hist(256);    // 256色
-    for (int i = 0; i != img->width(); ++i)
+    for (int i = 0; i < img->width(); ++i)
     {
-        for (int j = 0; j != img->height(); ++j)
+        for (int j = 0; j < img->height(); ++j)
         {
             int index = int(*graydata);
             hist[index] += 1;
