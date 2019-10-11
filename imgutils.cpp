@@ -324,3 +324,78 @@ Mat screen15(Mat src)
     Mat roi = img(Rect(12*50, 12*50, 24, 24));
     return img;
 }
+
+
+uchar minimum(uchar a, uchar b)
+{
+    return a <= b ? a : b;
+}
+
+cv::Mat rgb2cmyk(cv::Mat& rgb)
+{
+    cv::Mat cmyk = cv::Mat::zeros(rgb.rows, rgb.cols, CV_8UC4);
+    int pixel_num = rgb.rows * rgb.cols;
+    for (int i = 0; i < pixel_num; i++)
+    {
+        uchar c = 255 - rgb.data[3 * i + 0];
+        uchar m = 255 - rgb.data[3 * i + 1];
+        uchar y = 255 - rgb.data[3 * i + 2];
+        uchar K = minimum(minimum(c, m), y);
+        uchar C = 0;
+        uchar M = 0;
+        uchar Y = 0;
+        if (K == 255)
+        {
+            C = 0;
+            M = 0;
+            Y = 0;
+        }
+        else
+        {
+            C = (uchar)((c - K)*255.0 / (255 - K));
+            M = (uchar)((m - K)*255.0 / (255 - K));
+            Y = (uchar)((y - K)*255.0 / (255 - K));
+        }
+        cmyk.data[4 * i + 0] = C;
+        cmyk.data[4 * i + 1] = M;
+        cmyk.data[4 * i + 2] = Y;
+        cmyk.data[4 * i + 3] = K;
+    }
+    return cmyk;
+}
+
+cv::Mat bgr2cmyk(cv::Mat& bgr)
+{
+    Mat rgb;
+    cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
+
+    cv::Mat cmyk = cv::Mat::zeros(rgb.rows, rgb.cols, CV_8UC4);
+    int pixel_num = rgb.rows * rgb.cols;
+    for (int i = 0; i < pixel_num; i++)
+    {
+        uchar c = 255 - rgb.data[3 * i + 0];
+        uchar m = 255 - rgb.data[3 * i + 1];
+        uchar y = 255 - rgb.data[3 * i + 2];
+        uchar K = minimum(minimum(c, m), y);
+        uchar C = 0;
+        uchar M = 0;
+        uchar Y = 0;
+        if (K == 255)
+        {
+            C = 0;
+            M = 0;
+            Y = 0;
+        }
+        else
+        {
+            C = (uchar)((c - K)*255.0 / (255 - K));
+            M = (uchar)((m - K)*255.0 / (255 - K));
+            Y = (uchar)((y - K)*255.0 / (255 - K));
+        }
+        cmyk.data[4 * i + 0] = C;
+        cmyk.data[4 * i + 1] = M;
+        cmyk.data[4 * i + 2] = Y;
+        cmyk.data[4 * i + 3] = K;
+    }
+    return cmyk;
+}

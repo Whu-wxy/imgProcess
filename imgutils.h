@@ -27,4 +27,10 @@ Mat screen15(Mat src);
 
 Mat screen75(Mat src);
 
+uchar minimum(uchar a, uchar b);
+
+cv::Mat rgb2cmyk(cv::Mat& rgb);
+
+cv::Mat bgr2cmyk(cv::Mat& bgr);
+
 #endif // IMGUTILS_H
