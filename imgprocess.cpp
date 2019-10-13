@@ -433,7 +433,7 @@ void ImgProcess::toLast()
 void ImgProcess::screening()
 {
     *oldImage = *img;
-
+//    Mat matImgCyan;
     QString szColor;
     int angle;
 
@@ -444,16 +444,25 @@ void ImgProcess::screening()
         angle=dlg->angleCombo->currentData().toInt();
 
         Mat  matImg=QImageToMat(*img);
+//        Mat  cmyk;
+//        matImg=bgr2cmyk(matImg);
         matImg=bgr2cmyk(matImg);
-         vector<Mat> MatList;
+        vector<Mat> MatList;
+        assert(matImg.data!=NULL);
+        namedWindow("image",CV_WINDOW_AUTOSIZE);
+        namedWindow("splitImage",CV_WINDOW_AUTOSIZE);
+        imshow("image",matImg);
         split(matImg,MatList);
-        if(szColor=="C")
+        imshow("splitImage",MatList.at(2));
+        if(szColor=="Y")
         {
-            matImg=MatList.at(0);
+            matImg=MatList.at(2);
             if(angle==0)
                 matImg=screen0(matImg);
+                imshow("matImg",matImg);
             *img=MatToQImage(matImg);
         }
+
 
     }
     update();
