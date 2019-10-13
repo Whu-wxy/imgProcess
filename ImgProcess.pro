@@ -26,14 +26,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += main.cpp\
         imgprocess.cpp \
     edgenum.cpp \
-    imgutils.cpp
+    imgutils.cpp \
+    rationaldlg.cpp
 
 HEADERS  += imgprocess.h \
     edgenum.h \
-    imgutils.h
+    imgutils.h \
+    rationaldlg.h
 
 RESOURCES += \
     src.qrc
 
-INCLUDEPATH +=E:\OpenCVMinGW3.4.1\include
-LIBS += E:\OpenCVMinGW3.4.1\bin\libopencv_*.dll
+INCLUDEPATH +=E:\OpenCV-MinGW-Build-OpenCV-3.4.1-x64\include
+LIBS += E:\OpenCV-MinGW-Build-OpenCV-3.4.1-x64\x64\mingw\bin\libopencv_*.dll

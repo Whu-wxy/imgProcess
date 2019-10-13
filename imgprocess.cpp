@@ -6,6 +6,8 @@
 #include <QIcon>
 #include <QLabel>
 #include <QDebug>
+#include <rationaldlg.h>
+#include "imgutils.h"
 
 ImgProcess::ImgProcess(QWidget *parent)
     : QMainWindow(parent)
@@ -71,6 +73,11 @@ void ImgProcess::createAction()
     connect(gray,SIGNAL(triggered(bool)),this,SLOT(graying()));
     binImg=new QAction("二值化");
     connect(binImg,SIGNAL(triggered(bool)),this,SLOT(bining()));
+
+    screen= new QAction("有理正切加网");
+    connect(screen,SIGNAL(triggered(bool)),this,SLOT(screening()));
+
+
 }
 
 void ImgProcess::createMenu()
@@ -93,6 +100,9 @@ void ImgProcess::createMenu()
     colorimg=menuBar()->addMenu("彩图处理");
     colorimg->addAction(gray);
     colorimg->addAction(binImg);
+
+    screenimg=menuBar()->addMenu("数字加网");
+    screenimg->addAction(screen);
 }
 
 void ImgProcess::openfile()
@@ -378,4 +388,35 @@ void ImgProcess::toLast()
 {
     *img = *oldImage;
     imgLabel->setPixmap(QPixmap::fromImage(*img));
+
+}
+
+
+void ImgProcess::screening()
+{
+    *oldImage = *img;
+
+    QString szColor;
+    int angle;
+
+    RationalDlg *dlg=new RationalDlg;
+    if(dlg->exec()==QDialog::Accepted)
+    {
+        szColor=dlg->colorCombo->currentData().toString();
+        angle=dlg->angleCombo->currentData().toInt();
+
+        Mat  matImg=QImageToMat(*img);
+        matImg=bgr2cmyk(matImg);
+         vector<Mat> MatList;
+        split(matImg,MatList);
+        if(szColor=="C")
+        {
+            matImg=MatList.at(0);
+            if(angle==0)
+                matImg=screen0(matImg);
+            *img=MatToQImage(matImg);
+        }
+
+    }
+    update();
 }

@@ -18,16 +18,16 @@ int main(int argc, char *argv[])
 
 
 
-    QString srcPath = "F:\\Lena256.bmp";
-    Mat src = imread(srcPath.toStdString());
+//    QString srcPath = "E:\QT PROJECT\imgProcess";
+//    Mat src = imread(srcPath.toStdString());
 
-    src = screen75(src);
+//    src = screen75(src);
 
-    namedWindow("res", cv::WINDOW_NORMAL);
-    imshow("res", src);
+//    namedWindow("res", cv::WINDOW_NORMAL);
+//    imshow("res", src);
 
 
-    waitKey(0);
+//    waitKey(0);
 
     return a.exec();
 }
