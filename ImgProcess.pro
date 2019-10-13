@@ -37,5 +37,5 @@ HEADERS  += imgprocess.h \
 RESOURCES += \
     src.qrc
 
-INCLUDEPATH +=E:\OpenCV-MinGW-Build-OpenCV-3.4.1-x64\include
-LIBS += E:\OpenCV-MinGW-Build-OpenCV-3.4.1-x64\x64\mingw\bin\libopencv_*.dll
+INCLUDEPATH += D:\OpenCVMinGW3.4.1\include
+LIBS += D:\OpenCVMinGW3.4.1\bin\libopencv_*.dll
