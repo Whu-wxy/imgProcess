@@ -16,5 +16,6 @@ int main(int argc, char *argv[])
     ImgProcess w;
     w.show();
 
+
     return a.exec();
 }

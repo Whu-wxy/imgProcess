@@ -14,6 +14,9 @@
 #include "opencv2/opencv.hpp"//添加Opencv相关头文件
 #include "opencv2/highgui/highgui.hpp"
 
+using namespace cv ;
+using namespace std;
+
 class ImgProcess : public QMainWindow
 {
     Q_OBJECT
@@ -35,6 +38,7 @@ private:
     QMenu *edit;
     QMenu *imgProcess;
     QMenu *colorimg;
+    QMenu *screenimg;
 
     QAction *open;
     QAction *close;
@@ -50,6 +54,10 @@ private:
 
     QAction *gray;
     QAction *binImg;
+
+    QAction *screen;
+
+
 public:
     void createAction();
     void createMenu();
@@ -72,6 +80,9 @@ public slots:
 
     void graying();
     void bining();
+
+    void screening();
 };
+
 
 #endif // IMGPROCESS_H
