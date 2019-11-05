@@ -27,12 +27,14 @@ SOURCES += main.cpp\
         imgprocess.cpp \
     edgenum.cpp \
     imgutils.cpp \
-    rationaldlg.cpp
+    rationaldlg.cpp \
+    roidlg.cpp
 
 HEADERS  += imgprocess.h \
     edgenum.h \
     imgutils.h \
-    rationaldlg.h
+    rationaldlg.h \
+    roidlg.h
 
 RESOURCES += \
     src.qrc
