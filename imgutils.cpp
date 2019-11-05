@@ -1,5 +1,5 @@
 #include "imgutils.h"
-
+#include <QPixmap>
 cv::Mat QImageToMat(QImage image)
 {
     cv::Mat mat;
@@ -364,11 +364,12 @@ cv::Mat rgb2cmyk(cv::Mat& rgb)
     return cmyk;
 }
 
+
 cv::Mat bgr2cmyk(cv::Mat& bgr)
 {
     Mat rgb;
     cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
-
+    imshow("rgb",rgb);
     cv::Mat cmyk = cv::Mat::zeros(rgb.rows, rgb.cols, CV_8UC4);
     int pixel_num = rgb.rows * rgb.cols;
     for (int i = 0; i < pixel_num; i++)
@@ -391,6 +392,9 @@ cv::Mat bgr2cmyk(cv::Mat& bgr)
             C = (uchar)((c - K)*255.0 / (255 - K));
             M = (uchar)((m - K)*255.0 / (255 - K));
             Y = (uchar)((y - K)*255.0 / (255 - K));
+//            C = (uchar)(c - K);
+//            M = (uchar)(m - K);
+//            Y = (uchar)(y - K);
         }
         cmyk.data[4 * i + 0] = C;
         cmyk.data[4 * i + 1] = M;
@@ -399,3 +403,5 @@ cv::Mat bgr2cmyk(cv::Mat& bgr)
     }
     return cmyk;
 }
+
+

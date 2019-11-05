@@ -8,7 +8,6 @@
 #include <QFile>
 #include <QLabel>
 #include <edgenum.h>
-
 #include "imgutils.h"
 
 #include "opencv2/opencv.hpp"//添加Opencv相关头文件
@@ -56,7 +55,7 @@ private:
     QAction *binImg;
 
     QAction *screen;
-
+    QAction *ROI;
 
 public:
     void createAction();
@@ -82,6 +81,7 @@ public slots:
     void bining();
 
     void screening();
+    void ShowROI();
 };
 
 
