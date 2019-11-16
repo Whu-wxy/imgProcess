@@ -436,56 +436,67 @@ void ImgProcess::toLast()
 void ImgProcess::screening()
 {
     *oldImage = *img;
-//    Mat matImgCyan;
     QString szColor;
     int angle;
 
-    RationalDlg *dlg=new RationalDlg;
+//    if(img->format() == QImage::Format_Indexed8 || img->depth() == 1)
+//    {
+//        Mat  matImg=QImageToMat(*img);
+//        matImg=screen0(matImg);
+
+//        showMatImage(matImg);
+//        *img=MatToQImage(matImg);
+//        QSize size=imgLabel->size();
+//        *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
+//        imgLabel->setPixmap(QPixmap::fromImage(*img));
+//        update();
+//        return;
+//    }
+
+    bool bGrayImage = false;
+    if(img->format() == QImage::Format_Indexed8 || img->depth() == 1)
+        bGrayImage = true;
+
+    RationalDlg *dlg=new RationalDlg(bGrayImage);
     if(dlg->exec()==QDialog::Accepted)
     {
         szColor=dlg->colorCombo->currentData().toString();
         angle=dlg->angleCombo->currentData().toInt();
 
         Mat  matImg=QImageToMat(*img);
-//        Mat  cmyk;
-//        matImg=bgr2cmyk(matImg);
-        matImg=bgr2cmyk(matImg);
+
         vector<Mat> MatList;
-        assert(matImg.data!=NULL);
-        imshow("image",matImg);
-        split(matImg,MatList);
-        imshow("splitImage",MatList.at(2));
+        if(!bGrayImage)
+        {
+            matImg=bgr2cmyk(matImg);
+            assert(matImg.data!=NULL);
+            split(matImg,MatList);
+        }
         QSize size;
-        QImage *image= new QImage;
         if(szColor=="C")
         {
             matImg=MatList.at(0);
             if(angle==0)
             {
                 matImg=screen0(matImg);
-//                *img = QImage((const uchar*)(matImg.data), matImg.cols, matImg.rows, matImg.cols * matImg.channels(), QImage::Format_RGB888);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==15)
             {
                 matImg=screen15(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==45)
             {
                 matImg=screen45(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==75)
             {
                 matImg=screen75(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             *img=MatToQImage(matImg);
-//            size=imgLabel->size();
-//            *image = img->scaled(size,Qt::IgnoreAspectRatio);
-//            imgLabel->setPixmap(QPixmap::fromImage(*image));
-//            imgLabel->setPixmap(QPixmap::fromImage(*img));
         }
         if(szColor=="M")
         {
@@ -493,27 +504,24 @@ void ImgProcess::screening()
             if(angle==0)
                 {
                 matImg=screen0(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
                 }
             if(angle==15)
             {
                 matImg=screen15(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==45)
             {
                 matImg=screen45(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==75)
             {
                 matImg=screen75(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             *img=MatToQImage(matImg);
-//            size=imgLabel->size();
-//            *image = img->scaled(size,Qt::IgnoreAspectRatio);
-//            imgLabel->setPixmap(QPixmap::fromImage(*image));
         }
         if(szColor=="Y")
         {
@@ -521,59 +529,54 @@ void ImgProcess::screening()
             if(angle==0)
                 {
                 matImg=screen0(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
                 }
             if(angle==15)
             {
                 matImg=screen15(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==45)
             {
                 matImg=screen45(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==75)
             {
                 matImg=screen75(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             *img=MatToQImage(matImg);
-//            size=imgLabel->size();
-//            *image = img->scaled(size,Qt::IgnoreAspectRatio);
-//            imgLabel->setPixmap(QPixmap::fromImage(*image));
         }
         if(szColor=="K")
         {
-            matImg=MatList.at(3);
+            if(!bGrayImage)
+                matImg=MatList.at(3);
             if(angle==0)
-                {
+            {
                 matImg=screen0(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
                 }
             if(angle==15)
             {
                 matImg=screen15(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==45)
             {
                 matImg=screen45(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             if(angle==75)
             {
                 matImg=screen75(matImg);
-                imshow("matImg",matImg);
+                showMatImage(matImg);
             }
             *img=MatToQImage(matImg);
-//            size=imgLabel->size();
-//            *image = img->scaled(size,Qt::IgnoreAspectRatio);
-//            imgLabel->setPixmap(QPixmap::fromImage(*image));
         }
         size=imgLabel->size();
-        *image = img->scaled(size,Qt::IgnoreAspectRatio);
-        imgLabel->setPixmap(QPixmap::fromImage(*image));
+        *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
     }
     update();
 //    ShowROI();
@@ -587,14 +590,14 @@ void ImgProcess::ShowROI()
     ROIDlg *roidlg= new ROIDlg;
     if(roidlg->exec()==QDialog::Accepted)
     {
-            x1=roidlg->x1_text->text().toDouble();
-            x2=roidlg->x2_text->text().toDouble();
-            y1=roidlg->y1_text->text().toDouble();
-            y2=roidlg->y2_text->text().toDouble();
-            *img=img->copy(x1,y1,x2-x1,y2-y1);
-            QSize size=imgLabel->size();
-            *img = img->scaled(size,Qt::IgnoreAspectRatio);
-            imgLabel->setPixmap(QPixmap::fromImage(*img));
+        x1=roidlg->x1_text->text().toDouble();
+        x2=roidlg->x2_text->text().toDouble();
+        y1=roidlg->y1_text->text().toDouble();
+        y2=roidlg->y2_text->text().toDouble();
+        *img=img->copy(x1,y1,x2-x1,y2-y1);
+        QSize size=imgLabel->size();
+        *img = img->scaled(size,Qt::IgnoreAspectRatio);
+        imgLabel->setPixmap(QPixmap::fromImage(*img));
 
     }
 }

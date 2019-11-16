@@ -1,12 +1,17 @@
 #include "rationaldlg.h"
 
-RationalDlg::RationalDlg()
+RationalDlg::RationalDlg(bool grayImage)
 {
     colorCombo = new QComboBox(this);
-    colorCombo->addItem("青色",QVariant("C"));
-    colorCombo->addItem("品红色",QVariant("M"));
-    colorCombo->addItem("黄色",QVariant("Y"));
-    colorCombo->addItem("黑色",QVariant("K"));
+    if(grayImage)
+        colorCombo->addItem("黑色",QVariant("K"));
+    else
+    {
+        colorCombo->addItem("青色",QVariant("C"));
+        colorCombo->addItem("品红色",QVariant("M"));
+        colorCombo->addItem("黄色",QVariant("Y"));
+        colorCombo->addItem("黑色",QVariant("K"));
+    }
 
     angleCombo= new QComboBox(this);
     angleCombo->addItem("0",QVariant(0));

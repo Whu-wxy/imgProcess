@@ -1,5 +1,13 @@
 #include "imgutils.h"
 #include <QPixmap>
+
+void showMatImage(Mat image, QString win_name, int width, int height)
+{
+    namedWindow(win_name.toStdString(), WINDOW_NORMAL);
+    resizeWindow(win_name.toStdString(), width, height);
+    imshow(win_name.toStdString(), image);
+}
+
 cv::Mat QImageToMat(QImage image)
 {
     cv::Mat mat;
@@ -14,6 +22,7 @@ cv::Mat QImageToMat(QImage image)
         mat = cv::Mat(image.height(), image.width(), CV_8UC3, (void*)image.constBits(), image.bytesPerLine());
         cv::cvtColor(mat, mat, CV_BGR2RGB);
         break;
+    case QImage::Format_Indexed8:
     case QImage::Format_Grayscale8:
         mat = cv::Mat(image.height(), image.width(), CV_8UC1, (void*)image.constBits(), image.bytesPerLine());
         break;
@@ -171,7 +180,7 @@ Mat screen0(Mat src)
     if(src.channels() != 1)
         cvtColor(src, src, CV_RGB2GRAY);
 
-    Mat img(src.cols*12, src.rows*12, CV_8UC1, Scalar(255, 255, 255));
+    Mat img(src.rows*12, src.cols*12, CV_8UC1, Scalar(255, 255, 255));
     Mat kernel = (Mat_<uchar>(12, 12) <<144,140,132,122,107,63,54,93,106,123,133,142,
                   143,137,128,104,94,41,31,65,98,116,120,139,
                   135,131,114,97,61,35,24,55,80,103,113,125,
@@ -192,7 +201,7 @@ Mat screen0(Mat src)
         {
             int l = j % kernel.cols;
             int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*144);
-            if(pixelValue < kernel.at<uchar>(k,l))
+            if(pixelValue <= kernel.at<uchar>(k,l))
                 img.at<char>(i, j) = 0;
             else
                 img.at<char>(i, j) = 255;
@@ -212,7 +221,7 @@ Mat screen45(Mat src)
     if(src.channels() != 1)
         cvtColor(src, src, CV_RGB2GRAY);
 
-    Mat img(src.cols*12, src.rows*12, CV_8UC1, Scalar(255, 255, 255));
+    Mat img(src.rows*12, src.cols*12, CV_8UC1, Scalar(255, 255, 255));
     Mat kernel = (Mat_<uchar>(8, 16) <<128,120,109,92,74,66,46,8,15,10,64,79,97,111,122,127,
                   123,116,87,69,62,38,6,39,42,3,19,55,86,105,115,119,
                   107,96,71,59,24,12,28,52,63,47,20,1,58,95,108,112,
@@ -234,7 +243,7 @@ Mat screen45(Mat src)
         {
             int l = (j%img.cols + t) % kernel.cols;
             int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*128);
-            if(pixelValue < kernel.at<uchar>(k,l))
+            if(pixelValue <= kernel.at<uchar>(k,l))
                 img.at<char>(i, j) = 0;
             else
                 img.at<char>(i, j) = 255;
@@ -252,10 +261,11 @@ Mat screen45(Mat src)
 
 Mat screen75(Mat src)
 {
+  //  showMatImage(src, "before");
     if(src.channels() != 1)
         cvtColor(src, src, CV_RGB2GRAY);
 
-    Mat img(src.cols*12, src.rows*12, CV_8UC1, Scalar(255, 255, 255));
+    Mat img(src.rows*12, src.cols*12, CV_8UC1, Scalar(255, 255, 255));
     Mat kernel = (Mat_<uchar>(3, 51) << 153,148,120,77,53,28,26,60,87,122,131,135,132,124,116,104,73,47,23,6,56,66,85,57,51,39,
                   19,8,15,2,7,17,55,79,83,99,102,109,112,117,105,74,54,14,24,64,84,121,137,142,150,
                   145,139,101,69,48,11,34,68,100,128,138,143,147,141,125,97,71,43,13,30,62,90,107,110,96,91,
@@ -271,20 +281,20 @@ Mat screen75(Mat src)
         for(int j=0; j<img.cols; j++)
         {
             int l = (j%img.cols + t) % kernel.cols;
-//            int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*153);
-//            if(pixelValue < kernel.at<uchar>(k,l))
-//                img.at<char>(i, j) = 0;
-//            else
-//                img.at<char>(i, j) = 255;
+            int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*153);
+            if(pixelValue <= kernel.at<uchar>(k,l))
+                img.at<char>(i, j) = 0;
+            else
+                img.at<char>(i, j) = 255;
 
-            img.at<char>(i, j) = kernel.at<uchar>(k,l);
+        //    img.at<char>(i, j) = kernel.at<uchar>(k,l);
 
         }
     }
 
 
     Mat roi = img(Rect(12*50, 12*50, 24, 24));
-    return roi;
+    return img;
 }
 
 
@@ -293,7 +303,7 @@ Mat screen15(Mat src)
     if(src.channels() != 1)
         cvtColor(src, src, CV_RGB2GRAY);
 
-    Mat img(src.cols*12, src.rows*12, CV_8UC1, Scalar(255, 255, 255));
+    Mat img(src.rows*12, src.cols*12, CV_8UC1, Scalar(255, 255, 255));
     Mat kernel = (Mat_<uchar>(3, 51) << 153,145,136,117,95,81,8,52,93,104,97,86,77,69,59,54,41,29,7,5,36,23,13,18,26,34,
                   46,64,67,72,79,25,50,66,90,103,122,128,130,137,134,118,102,82,16,51,96,115,132,147,152,
                   148,139,126,105,98,78,15,27,80,73,71,61,53,48,31,14,1,10,17,4,3,6,30,49,60,68,
@@ -310,7 +320,7 @@ Mat screen15(Mat src)
         {
             int l = (j%img.cols + t) % kernel.cols;
             int pixelValue = ceil(src.at<uchar>(i/12, j/12) / 255.0*153);
-            if(pixelValue < kernel.at<uchar>(k,l))
+            if(pixelValue <= kernel.at<uchar>(k,l))
                 img.at<char>(i, j) = 0;
             else
                 img.at<char>(i, j) = 255;
@@ -356,10 +366,10 @@ cv::Mat rgb2cmyk(cv::Mat& rgb)
             M = (uchar)((m - K)*255.0 / (255 - K));
             Y = (uchar)((y - K)*255.0 / (255 - K));
         }
-        cmyk.data[4 * i + 0] = C;
-        cmyk.data[4 * i + 1] = M;
-        cmyk.data[4 * i + 2] = Y;
-        cmyk.data[4 * i + 3] = K;
+        cmyk.data[4 * i + 0] = 255-C;
+        cmyk.data[4 * i + 1] = 255-M;
+        cmyk.data[4 * i + 2] = 255-Y;
+        cmyk.data[4 * i + 3] = 255-K;
     }
     return cmyk;
 }
@@ -369,7 +379,7 @@ cv::Mat bgr2cmyk(cv::Mat& bgr)
 {
     Mat rgb;
     cv::cvtColor(bgr, rgb, cv::COLOR_BGR2RGB);
-    imshow("rgb",rgb);
+   // showMatImage(rgb, "rgb");
     cv::Mat cmyk = cv::Mat::zeros(rgb.rows, rgb.cols, CV_8UC4);
     int pixel_num = rgb.rows * rgb.cols;
     for (int i = 0; i < pixel_num; i++)
@@ -396,10 +406,10 @@ cv::Mat bgr2cmyk(cv::Mat& bgr)
 //            M = (uchar)(m - K);
 //            Y = (uchar)(y - K);
         }
-        cmyk.data[4 * i + 0] = C;
-        cmyk.data[4 * i + 1] = M;
-        cmyk.data[4 * i + 2] = Y;
-        cmyk.data[4 * i + 3] = K;
+        cmyk.data[4 * i + 0] = 255-C;
+        cmyk.data[4 * i + 1] = 255-M;
+        cmyk.data[4 * i + 2] = 255-Y;
+        cmyk.data[4 * i + 3] = 255-K;
     }
     return cmyk;
 }

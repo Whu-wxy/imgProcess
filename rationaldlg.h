@@ -10,7 +10,7 @@ class RationalDlg : public QDialog
 {
     Q_OBJECT
 public:
-    RationalDlg();
+    RationalDlg(bool grayImage);
     QComboBox *colorCombo;
     QComboBox *angleCombo;
 
