@@ -10,6 +10,7 @@
 #include <roidlg.h>
 #include "imgutils.h"
 #include <QSize>
+
 ImgProcess::ImgProcess(QWidget *parent)
     : QMainWindow(parent)
 {
@@ -37,6 +38,7 @@ ImgProcess::~ImgProcess()
 {
 
 }
+
 void ImgProcess::createAction()
 {
     open=new QAction(QIcon(":/images/open.png"),"打开图片");
@@ -216,6 +218,7 @@ void ImgProcess::closefile()
     case QMessageBox::Ok:
         imgLabel->clear();
         delete img;
+        img = NULL;
         break;
     }
 }
@@ -439,20 +442,6 @@ void ImgProcess::screening()
     QString szColor;
     int angle;
 
-//    if(img->format() == QImage::Format_Indexed8 || img->depth() == 1)
-//    {
-//        Mat  matImg=QImageToMat(*img);
-//        matImg=screen0(matImg);
-
-//        showMatImage(matImg);
-//        *img=MatToQImage(matImg);
-//        QSize size=imgLabel->size();
-//        *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
-//        imgLabel->setPixmap(QPixmap::fromImage(*img));
-//        update();
-//        return;
-//    }
-
     bool bGrayImage = false;
     if(img->format() == QImage::Format_Indexed8 || img->depth() == 1)
         bGrayImage = true;
@@ -574,8 +563,8 @@ void ImgProcess::screening()
             }
             *img=MatToQImage(matImg);
         }
-        size=imgLabel->size();
-        *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
+       // size=imgLabel->size();
+       // *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
         imgLabel->setPixmap(QPixmap::fromImage(*img));
     }
     update();
@@ -596,9 +585,8 @@ void ImgProcess::ShowROI()
         y2=roidlg->y2_text->text().toDouble();
         *img=img->copy(x1,y1,x2-x1,y2-y1);
         QSize size=imgLabel->size();
-        *img = img->scaled(size,Qt::IgnoreAspectRatio);
+        *img = img->scaled(size,Qt::KeepAspectRatio, Qt::SmoothTransformation);
         imgLabel->setPixmap(QPixmap::fromImage(*img));
-
     }
 }
 
