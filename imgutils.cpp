@@ -335,6 +335,153 @@ Mat screen15(Mat src)
     return img;
 }
 
+Mat FrequenceM  (Mat src)
+{
+    if (src.channels() != 1)
+            cvtColor(src, src, CV_RGB2GRAY);
+
+        Mat img(src.rows * 12, src.cols * 12, CV_8UC1, Scalar(255, 255, 255));
+        Mat pix = Mat::zeros(img.size(), CV_8UC1);
+        double A1 = 7.0 / 16;
+        double A2 = 3.0 / 16;
+        double A3 = 5.0 / 16;
+        double A4 = 1.0 / 16;
+
+        for (int i = 0; i<img.rows; i++)
+        {
+            for (int j = 0; j<img.cols; j++)
+            {
+                pix.at<uchar>(i, j) = src.at<uchar>(i / 12, j / 12) * 144.0 / 255 + 0.5;
+            }
+        }
+        float nError;
+        for (int i = 0; i<img.rows - 1; i++)
+        {
+            for (int j = 1; j<img.cols - 1; j++)
+            {
+                if (pix.at<uchar>(i, j) <= 72)
+                {
+                    nError = pix.at<uchar>(i, j);
+                    img.at<uchar>(i, j) = 0;
+                }
+                else
+                {
+                    nError = pix.at<uchar>(i, j) - 144;
+                    img.at<uchar>(i, j) = 255;
+                }
+                pix.at<uchar>(i, j + 1) += nError*A1;
+                pix.at<uchar>(i + 1, j - 1) += nError*A2;
+                pix.at<uchar>(i + 1, j) += nError*A3;
+                pix.at<uchar>(i + 1, j + 1) += nError*A4;
+
+            }
+        }
+        Mat roi = img(Rect(12 * 50, 12 * 50, 24, 24));
+        return img;
+}
+
+Mat ErrR(Mat src)
+{
+    if (src.channels() != 1)
+        cvtColor(src, src, CV_RGB2GRAY);
+
+    Mat img(src.rows * 8, src.cols * 8, CV_8UC1, Scalar(255, 255, 255));//放大4倍
+    Mat kernel = (Mat_<uchar>(8, 8) <<
+        0, 32, 8, 40, 2, 34, 10, 42,
+        48, 16, 56, 42, 50, 18, 58, 26,
+        12, 44, 4, 36, 14, 46, 6, 38,
+        60, 28, 52, 20, 62, 30, 54, 22,
+        3, 35, 11, 43, 1, 33, 9, 41,
+        51, 19, 59, 27, 49, 17, 57, 25,
+        15, 47, 7, 39, 13, 45, 5, 37,
+        63, 31, 55, 23, 61, 29, 53, 21);
+
+    int q = 8;
+
+    for (int i = 0; i<img.rows; i++)
+    {
+        float k = i % q;
+        //int t = q*kernel.rows*(i/kernel.rows) % img.cols;
+        for (int j = 0; j<img.cols; j++)
+        {
+            // int l = (j%img.cols + t) % kernel.cols;
+            float l = j % q;
+
+            int pixelValue = ceil(src.at<uchar>(i/q, j/q) / 255.0 * 64);
+
+            if (pixelValue <= kernel.at<uchar>(k, l))
+                img.at<char>(i, j) = 0;
+            else
+                img.at<char>(i, j) = 255;
+        }
+    }
+    Mat roi = img(Rect(12 * 50, 12 * 50, 24, 24));
+    return img;
+
+}
+
+
+double getPSNR(const Mat& I1, const Mat& I2) {
+    Mat s1;
+    absdiff(I1, I2, s1);
+    s1.convertTo(s1, CV_32F);
+    s1 = s1.mul(s1);
+    Scalar s = sum(s1);
+    double sse = s.val[0] + s.val[1] + s.val[2];
+    if (sse <= 1e-10)
+        return 0;
+    else {
+        double mse = sse / (double)(I1.channels()*I1.total());
+        double psnr = 10.0*log10(255 * 255 / mse);
+        return psnr;
+    }
+
+}
+
+Scalar getMSSIM(const Mat& i1, const Mat& i2) {
+    const double C1 = 6.5025, C2 = 58.5225;
+    int d = CV_32F;
+
+    Mat I1, I2;
+    i1.convertTo(I1, d);
+    i2.convertTo(I2, d);
+    Mat I2_2 = I2.mul(I2);     // I2^2
+    Mat I1_2 = I1.mul(I1);      //I1^2
+    Mat I1_I2 = I1.mul(I2);     // I1*I2
+
+    Mat mu1, mu2;
+    GaussianBlur(I1, mu1, Size(11, 11), 1.5);
+    GaussianBlur(I2, mu2, Size(11, 11), 1.5);
+
+    Mat mu1_2 = mu1.mul(mu1);
+    Mat mu2_2 = mu2.mul(mu2);
+    Mat mu1_mu2 = mu1.mul(mu2);
+
+    Mat sigma1_2, sigma2_2, sigma12;
+
+    GaussianBlur(I1_2, sigma1_2, Size(11, 11), 1.5);
+    sigma1_2 -= mu1_2;
+
+    GaussianBlur(I2_2, sigma2_2, Size(11, 11), 1.5);
+    sigma2_2 -= mu2_2;
+
+    GaussianBlur(I1_I2, sigma12, Size(11, 11), 1.5);
+    sigma12 -= mu1_mu2;
+
+    Mat t1, t2, t3;
+    t1 = 2 * mu1_mu2 + C1;
+    t2 = 2 * sigma12 + C2;
+    t3 = t1.mul(t2);
+
+    t1 = mu1_2 + mu2_2 + C1;
+    t2 = sigma1_2 + sigma2_2 + C2;
+    t1 = t1.mul(t2);
+
+    Mat ssim_map;
+    divide(t3, t1, ssim_map);
+    Scalar mssim = mean(ssim_map);
+    return mssim;
+}
 
 uchar minimum(uchar a, uchar b)
 {
@@ -366,10 +513,10 @@ cv::Mat rgb2cmyk(cv::Mat& rgb)
             M = (uchar)((m - K)*255.0 / (255 - K));
             Y = (uchar)((y - K)*255.0 / (255 - K));
         }
-        cmyk.data[4 * i + 0] = 255-C;
-        cmyk.data[4 * i + 1] = 255-M;
-        cmyk.data[4 * i + 2] = 255-Y;
-        cmyk.data[4 * i + 3] = 255-K;
+        cmyk.data[4 * i + 0] = C;
+        cmyk.data[4 * i + 1] = M;
+        cmyk.data[4 * i + 2] = Y;
+        cmyk.data[4 * i + 3] = K;
     }
     return cmyk;
 }
@@ -402,16 +549,208 @@ cv::Mat bgr2cmyk(cv::Mat& bgr)
             C = (uchar)((c - K)*255.0 / (255 - K));
             M = (uchar)((m - K)*255.0 / (255 - K));
             Y = (uchar)((y - K)*255.0 / (255 - K));
-//            C = (uchar)(c - K);
-//            M = (uchar)(m - K);
-//            Y = (uchar)(y - K);
         }
-        cmyk.data[4 * i + 0] = 255-C;
-        cmyk.data[4 * i + 1] = 255-M;
-        cmyk.data[4 * i + 2] = 255-Y;
-        cmyk.data[4 * i + 3] = 255-K;
+        cmyk.data[4 * i + 0] = C;
+        cmyk.data[4 * i + 1] = M;
+        cmyk.data[4 * i + 2] = Y;
+        cmyk.data[4 * i + 3] = K;
     }
     return cmyk;
 }
 
 
+
+Mat bgr2gray(Mat src, bool average)
+{
+    Mat dst(src.rows, src.cols, CV_8UC1);
+
+    float R, G, B;
+    for (int y = 0; y < src.rows; y++)
+    {
+        uchar* data = dst.ptr<uchar>(y);
+        for (int x = 0; x < src.cols; x++)
+        {
+            B = src.at<Vec3b>(y, x)[0];
+            G = src.at<Vec3b>(y, x)[1];
+            R = src.at<Vec3b>(y, x)[2];
+            if(average)
+                data[x] = (int)(R + G + B )/3;
+            else
+                data[x] = (int)(R * 0.299 + G * 0.587 + B * 0.114);//利用公式计算灰度值（加权平均法）
+        }
+    }
+    return dst;
+}
+
+
+
+bool processGeoJson(QString filePath, PolygonObjList& polys, int &maxX, int &maxY)
+{
+    QFile file(filePath);
+    if(!file.open(QIODevice::ReadOnly))
+        return false;
+    QJsonDocument jsonDoc = QJsonDocument::fromJson(file.readAll());
+    file.close();
+    if(jsonDoc.isEmpty())
+        return false;
+
+    double maxArea = 0;
+    QRect maxRect(0,0,0,0);
+
+    QJsonObject jsonRoot = jsonDoc.object();
+    QJsonArray features = jsonRoot.value("features").toArray();
+    for(int i=0; i<features.count(); i++)
+    {
+
+        QJsonObject feature = features.at(i).toObject();
+        QJsonObject geometry = feature.value("geometry").toObject();
+        QJsonObject properties = feature.value("properties").toObject();
+        double color = properties.value("Segment").toDouble();
+
+        QJsonArray polygons = geometry.value("coordinates").toArray();
+
+        for(int j=0; j<polygons.count(); j++)
+        {
+            QJsonArray polygon = polygons.at(j).toArray();
+            PolygonObject polyObj;
+            for(int m=0; m<polygon.count(); m++)  //points
+            {
+                QJsonArray point = polygon.at(m).toArray();
+                if(point.count() == 2)
+                {
+                    int x = point.at(0).toInt();
+                    int y = point.at(1).toInt();
+                    if(x > maxX)
+                        maxX = x;
+                    if(y>maxY)
+                        maxY = y;
+                    polyObj.polygon.append(QPoint(x, y));
+                }
+            }
+            QRect boundRect = polyObj.polygon.boundingRect();
+            polyObj.midPt = boundRect.center();
+            if(boundRect.width()*boundRect.height() > maxArea)
+            {
+                maxArea = boundRect.width()*boundRect.height();
+                maxRect = boundRect;
+            }
+
+            if(color == 255)
+                continue;
+            if(polyObj.polygon.count() >= 3)
+                polys.append(polyObj);
+        }
+    }
+
+    double aveHeight = 0.0;
+
+    int count = polys.count();
+    for(int j=0; j<count; j++)
+    {
+        double minArea = 9999999999;
+        double maxArea = 0;
+        double minArea2 = 9999999999;
+        double maxArea2 = 0;
+        int idx1=0, idx2=0, idx3=0, idx4=0;
+
+        PolygonObject polyObj = polys.at(j);
+        for(int i=0; i<polyObj.polygon.count(); i++)
+        {
+            QPoint pt = polyObj.polygon.at(i);
+            double area = pt.x()+pt.y();
+            if(area < minArea)
+            {
+                minArea = area;
+                idx1=i;
+            }
+            if(area > maxArea)
+            {
+                maxArea = area;
+                idx3=i;
+            }
+            //reset
+            area = pt.x()+(maxRect.height()-pt.y());
+            if(area < minArea2)
+            {
+                minArea2 = area;
+                idx2=i;
+            }
+            if(area > maxArea2)
+            {
+                maxArea2 = area;
+                idx4=i;
+            }
+        }
+        //qDebug()<<idx1<<","<<idx2<<","<<idx3<<","<<idx4;
+        polyObj.cornerPts.append(polyObj.polygon.at(idx1));
+        polyObj.cornerPts.append(polyObj.polygon.at(idx2));
+        polyObj.cornerPts.append(polyObj.polygon.at(idx3));
+        polyObj.cornerPts.append(polyObj.polygon.at(idx4));
+
+        double lAveX = 0.0, rAveX = 0.0;
+        for(int m=idx1; m<=idx2; m++)  //pts
+        {
+            lAveX += polyObj.polygon.at(m).x();
+        }
+        lAveX = lAveX/(idx2-idx1+1);
+
+        for(int m=idx3; m<=idx4; m++)  //pts
+        {
+            rAveX += polyObj.polygon.at(m).x();
+        }
+        rAveX = rAveX/(idx4-idx3+1);
+
+        int lMidY = (polyObj.polygon.at(idx1).y()+polyObj.polygon.at(idx2).y()) / 2;
+        int rMidY = (polyObj.polygon.at(idx3).y()+polyObj.polygon.at(idx4).y()) / 2;
+        aveHeight += polyObj.polygon.at(idx2).y()-polyObj.polygon.at(idx1).y();
+        aveHeight += polyObj.polygon.at(idx3).y()-polyObj.polygon.at(idx4).y();
+
+        polyObj.LMidPt.setX(lAveX);
+        polyObj.LMidPt.setY(lMidY);
+        polyObj.RMidPt.setX(rAveX);
+        polyObj.RMidPt.setY(rMidY);
+        polyObj.horDis = rAveX-lAveX;
+
+        polys.replace(j, polyObj);
+    }
+    aveHeight /= count*2;
+
+    double lineY = polys.at(0).midPt.y();
+    int idx1=0, idx2=0;
+    for(int i=0; i<polys.count(); i++)
+    {
+        PolygonObject polyObj = polys.at(i);
+        if(abs(polyObj.midPt.y()-lineY) > aveHeight/2.0 || i == polys.count()-1)
+        {
+            if(i == polys.count()-1)
+                idx2++;
+            sortPolygons(polys, idx1, idx2);
+            qDebug()<<idx1<<","<<idx2;
+            idx1 = idx2;
+            lineY = polyObj.midPt.y();
+        }
+
+        idx2++;
+    }
+
+    return true;
+}
+
+void sortPolygons(PolygonObjList& polys, int idx1, int idx2)
+{
+    PolygonObjList sortPolys = polys.mid(idx1, idx2-idx1);
+    for(int i=0; i<sortPolys.count(); i++)
+    {
+        for(int j=0; j<sortPolys.count()-i-1; j++)
+        {
+            if(sortPolys.at(j).midPt.x()>sortPolys.at(j+1).midPt.x())
+            {
+                sortPolys.swap(j+1, j);
+            }
+        }
+    }
+    for(int i=idx1,j=0; i<idx2; i++,j++)
+    {
+        polys.replace(i,sortPolys.at(j));
+    }
+}

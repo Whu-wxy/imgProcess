@@ -1,5 +1,6 @@
 #include "imgprocess.h"
 #include <QApplication>
+#include <QDebug>
 
 #include "imgutils.h"
 
@@ -13,9 +14,12 @@ using namespace cv;
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    ImgProcess w;
-    w.show();
+//    ImgProcess w;
+//    w.show();
 
+    QList<QPolygon> polys;
+    processGeoJson("F:\\imgs\\scan\\7.json", polys);
+    qDebug()<<polys.count();
 
     return a.exec();
 }
